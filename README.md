@@ -1,2 +1,2 @@
-# Zone-Balatro
-balatro....
+# Example-Mod
+An example of a Joker for Balatro.

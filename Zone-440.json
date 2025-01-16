@@ -1,0 +1,16 @@
+{
+	"id": "ZONE440",
+	"name": "Zone440",
+	"display_name": "Zone-440",
+	"author": ["deathmodereal"],
+	"description": "zone.",
+	"prefix": "440",
+	"main_file": "main.lua",
+	"priority": 0,
+	"badge_colour": "FFFFFF",
+	"badge_text_colour": "FF00FF",
+	"version": "0.0.0.0.4.4.0",
+	"dependencies": [
+		"Talisman (>=2.0.0)"
+	]
+}
