@@ -1,2 +1,2 @@
-# Zone Balatro
-the zone 440:
+# Example-Mod
+An example of a Joker for Balatro.

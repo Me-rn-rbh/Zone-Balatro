@@ -215,7 +215,7 @@ SMODS.Atlas{
 
 SMODS.Atlas{
     key = 'teardrop', --atlas key
-    path = 'teardrop.jpg', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
+    path = 'teardrop.jpeg', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
     px = 71, --width of one card
     py = 95 -- height of one card
 }
