@@ -1,2 +1,2 @@
-# Example-Mod
-An example of a Joker for Balatro.
+# Zone Balatro
+zone-440 when:
