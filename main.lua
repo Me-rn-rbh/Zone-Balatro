@@ -1,6 +1,42 @@
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
+SMODS.PokerHand {
+    key = 'flushonacci',
+    chips = 144,
+    mult = 13,
+    l_chips = 8,
+    l_mult = 89,
+	visible = false,
+    example = {
+        { 'H_A',    true },
+        { 'H_2',    true },
+        { 'H_3',    true },
+        { 'H_5',    true },
+        { 'H_8',    true },
+    },
+    loc_txt = {
+        ['en-us'] = {
+            name = 'Flushonacci',
+            description = {
+                'A, 2, 3, 5 and 8 with',
+                'same suit'
+            }
+        }
+    },
+	  evaluate = function(parts, hand)
+        if next(parts._flush) then
+            local fibaflush = true
+			local _flushed = SMODS.merge_lists(parts._flush, parts._high_card)
+            for j = 1, #_flushed do
+                local rank = SMODS.Ranks[_flushed[j].base.value]
+                fibaflush = _flushed and (rank.key == 'A' or rank.key == '2' or rank.key == '3' or rank.key == '5' or rank.key == '8')
+            end
+            if fibaflush then return {_flushed} end
+        end
+    end,
+}
+
 SMODS.Sound{
 key = 'music_antimatter',
 path = 'antimatter.mp3',
@@ -99,31 +135,29 @@ jokers = {
 }
 
 SMODS.Enhancement{
-key = "wet",
-atlas = "wet_card",
-loc_txt = {
-         name = "Wet",
-		 text = {
-		 "{s:0.5}(hopefully){}{s:1} 1 chip.",
-            },
-		},
-config = {
-          bonus = 1
-		 },
+	key = "wet",
+	name = "Wet",
+	text = "wet",
+	atlas = "wet_card",
+	config = {
+			bonus = 1
+			},
+	loc_vars = function(self,info_queue, card)
+		return {vars = {card.ability.bonus}}
+	end,
 }
 
 SMODS.Enhancement{
-key = "dry",
-atlas = "dry_card",
-loc_txt = {
-         name = "Dry",
-		 text = {
-		 "{s:0.5}(hopefully){}{s:1} 1 mult.",
-            },
-		},
-config = {
+	key = "dry",
+	text = "dry",
+	atlas = "dry_card",
+	name = "Dry",
+	config = {
           mult = 1
 		 },
+	loc_vars = function(self,info_queue, card)
+		  return {vars = {card.ability.mult}}
+		end,
 }
 
 SMODS.Atlas{
@@ -235,8 +269,8 @@ SMODS.Consumable{
     loc_txt = {
         name = 'The Tap', --name of card
         text = { --text of card
-            'Pours water on {s:0.5}(hopefully){s:1}{C:attention}1{} card,',
-            'makes it {C.attention}WET{}.'
+            'Pours water on {C:attention}#1#{} card,',
+            'Makes it {C.attention}WET{}.'
         }
     },
     config = {
@@ -248,7 +282,8 @@ SMODS.Consumable{
 	
    loc_vars = function(self,info_queue, card)
          info_queue[#info_queue+1] = G.P_CENTERS.m_440_wet --displays configurable value: the #1# in the description is replaced with the configurable value
-    end,
+         return {vars = {card.ability.extra.cards}}
+	end,
     can_use = function(self,card)
         if G and G.hand then
             if #G.hand.highlighted ~= 0 and #G.hand.highlighted <= card.ability.extra.cards then --if cards in hand highlighted are above 0 but below the configurable value then
@@ -281,8 +316,8 @@ SMODS.Consumable{
     loc_txt = {
         name = 'The Towel', --name of card
         text = { --text of card
-            'Dries {s:0.5}(hopefully){s:1}{C:attention}3{} cards,',
-            'makes them {C.attention}DRY{}.'
+            'Dries {C:attention}#1#{} cards,',
+            'Makes them {C.attention}DRY{}.'
         }
     },
     config = {
@@ -294,7 +329,8 @@ SMODS.Consumable{
 	
    loc_vars = function(self,info_queue, card)
          info_queue[#info_queue+1] = G.P_CENTERS.m_440_dry --displays configurable value: the #1# in the description is replaced with the configurable value
-    end,
+         return {vars = {card.ability.extra.cards}}
+	end,
     can_use = function(self,card)
         if G and G.hand then
             if #G.hand.highlighted ~= 0 and #G.hand.highlighted <= card.ability.extra.cards then --if cards in hand highlighted are above 0 but below the configurable value then
