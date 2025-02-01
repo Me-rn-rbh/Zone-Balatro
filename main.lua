@@ -1,12 +1,84 @@
 ----------------------------------------------
 ------------MOD CODE -------------------------
+SMODS.PokerHandPart {
+    key = 'fiba',
+    func = function(hand)
+
+        if (#hand < 5) then
+            return {}
+        end
+
+        local fib = {false, false, false, false, false}
+
+        for i=1, #hand do
+            if (hand[i].base.value == 'Ace') then
+                if (fib[1] == true) then
+                    return {}
+                end
+                fib[1] = true
+            elseif (hand[i].base.value == '8') then
+                if (fib[2] == true) then
+                    return {}
+                end
+                fib[2] = true
+            elseif (hand[i].base.value == '5') then
+                if (fib[3] == true) then
+                    return {}
+                end
+                fib[3] = true
+            elseif (hand[i].base.value == '3') then
+                if (fib[4] == true) then
+                    return {}
+                end
+                fib[4] = true
+            elseif (hand[i].base.value == '2') then
+                if (fib[5] == true) then
+                    return {}
+                end
+                fib[5] = true
+            end
+        end
+
+        for i=1, #fib do
+            if (fib[i] == false) then
+                return {}
+            end
+        end
+
+        return { hand }
+    end
+}
+
+SMODS.PokerHandPart {
+    key = '8',
+    func = function(hand)
+
+        if (#hand < 8) then
+            return {}
+        end
+
+        local eight = {false, false, false, false, false, false, false, false}
+
+        for i=1, #hand do
+            if (#hand[i].base.value == 'Ace') then
+                end
+            end
+        for i=1, #hand do
+            if (hand[i] == false) then
+                return {}
+            end
+        end
+
+        return { hand }
+    end
+}
 
 SMODS.PokerHand {
     key = 'flushonacci',
-    chips = 144,
+    chips = 89,
     mult = 13,
-    l_chips = 8,
-    l_mult = 89,
+    l_chips = 55,
+    l_mult = 8,
 	visible = false,
     example = {
         { 'H_A',    true },
@@ -24,17 +96,92 @@ SMODS.PokerHand {
             }
         }
     },
-	  evaluate = function(parts, hand)
-        if next(parts._flush) then
-            local fibaflush = true
-			local _flushed = SMODS.merge_lists(parts._flush, parts._high_card)
-            for j = 1, #_flushed do
-                local rank = SMODS.Ranks[_flushed[j].base.value]
-                fibaflush = _flushed and (rank.key == 'A' or rank.key == '2' or rank.key == '3' or rank.key == '5' or rank.key == '8')
-            end
-            if fibaflush then return {_flushed} end
-        end
+	     evaluate = function(parts)
+        if next(parts.z440_fiba) and next(parts._flush) then
+        return parts.z440_fiba and parts._flush
+    end
+	end
+}
+
+SMODS.PokerHand {
+    key = '8flush',
+    chips = 640,
+    mult = 64,
+    l_chips = 80,
+    l_mult = 8,
+	visible = false,
+    example = {
+        { 'D_A',    true },
+        { 'D_A',    true },
+        { 'D_A',    true },
+        { 'D_A',    true },
+        { 'D_A',    true },
+		{ 'H_A',    true },
+        { 'S_A',    true },
+        { 'C_A',    true },
+    },
+    loc_txt = {
+        ['en-us'] = {
+            name = 'Flushed Aces',
+            description = {
+                'Eight Aces,',
+                'five or more with the same suit'
+            }
+        }
+    },
+	     evaluate = function(parts)
+        if next(parts.z440_8) and next(parts._flush) then
+        return parts.z440_8 and parts._flush
+    end
+	end
+}
+
+SMODS.Consumable {
+    set = 'Planet',
+    key = 'psyche',
+    --! `h_` prefix was removed
+    config = { hand_type = 'z440_flushonacci', softlock = true },
+    pos = {x = 0, y = 0 },
+    atlas = 'psyche',
+    set_card_type_badge = function(self, card, badges)
+        badges[1] = create_badge(localize("k_asteroid"), get_type_colour(self or card.config, card), nil, 1.2)
     end,
+    process_loc_text = function(self)
+        --use another planet's loc txt instead
+        local target_text = G.localization.descriptions[self.set]['c_ceres'].text
+        SMODS.Consumable.process_loc_text(self)
+        G.localization.descriptions[self.set][self.key].text = target_text
+    end,
+    generate_ui = 0,
+    loc_txt = {
+        ['en-us'] = {
+            name = 'Psyche'
+        }
+    }
+}
+
+SMODS.Consumable {
+    set = 'Planet',
+    key = 'sun',
+    --! `h_` prefix was removed
+    config = { hand_type = 'z440_8flush', softlock = true },
+    pos = {x = 0, y = 0 },
+    atlas = 'sun',
+    set_card_type_badge = function(self, card, badges)
+        badges[1] = create_badge(localize("k_star"), get_type_colour(self or card.config, card), nil, 1.2)
+    end,
+    process_loc_text = function(self)
+        --use another planet's loc txt instead
+        local target_text = G.localization.descriptions[self.set]['c_ceres'].text
+        SMODS.Consumable.process_loc_text(self)
+        G.localization.descriptions[self.set][self.key].text = target_text
+    end,
+    generate_ui = 0,
+    loc_txt = {
+        ['en-us'] = {
+            name = 'Sun'
+        }
+    }
 }
 
 SMODS.Sound{
@@ -47,12 +194,29 @@ pitch = 0.789,
 	['music3'] = true,
 	['music4'] = true,
 	['music5'] = true,
+    ['z440_music_miku'] = true,
  },
 select_music_track = function()
-		return next(SMODS.find_card("j_440_6/4")) and 1.57e308
+		return next(SMODS.find_card("j_z440_6/4")) and 100000
 	end,
 }
 
+SMODS.Sound{
+key = 'music_miku',
+path = 'miku.mp3',
+pitch = 1,
+ sync = {
+ 	['music1'] = true,
+ 	['music2'] = true,
+	['music3'] = true,
+	['music4'] = true,
+	['music5'] = true,
+	['z440_music_antimatter'] = true,
+ },
+select_music_track = function()
+		return next(SMODS.find_card("j_z440_miku?")) and 1.57e308
+	end,
+}
 
 if debug.mode then
 SMODS.Booster {
@@ -119,19 +283,21 @@ loc_txt = {
         name = 'The Desert',
 		  },
 jokers = {
-         {id = 'j_440_desert', eternal = true, pinned = true}
+         {id = 'j_z440_desert', eternal = true, pinned = true}
 },
  restrictions = {
             banned_cards = {
-                {id = 'c_440_towel'},
+                {id = 'c_z440_towel'},
                 {id = 'c_familiar'},
                 {id = 'c_grim'},
                 {id = 'c_incantation'},
+				 {id = 'p_standard_normal_1', ids = {
+                    'p_standard_normal_1','p_standard_normal_2','p_standard_normal_3','p_standard_normal_4','p_standard_jumbo_1','p_standard_jumbo_2','p_standard_mega_1','p_standard_mega_2',
+                }},
             },
 			 banned_other = {
-			 {id = 'p_standard'},
-            }
-},
+}
+}
 }
 
 SMODS.Enhancement{
@@ -163,6 +329,27 @@ SMODS.Enhancement{
 SMODS.Atlas{
     key = 'Jokers', --atlas key
     path = 'Jokers.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
+    px = 71, --width of one card
+    py = 95 -- height of one card
+}
+
+SMODS.Atlas{
+    key = 'psyche', --atlas key
+    path = 'PSYCHE.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
+    px = 71, --width of one card
+    py = 95 -- height of one card
+}
+
+SMODS.Atlas{
+    key = 'perspective', --atlas key
+    path = 'PERSPECTIVE.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
+    px = 71, --width of one card
+    py = 95 -- height of one card
+}
+
+SMODS.Atlas{
+    key = 'sun', --atlas key
+    path = 'SUN.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
     px = 71, --width of one card
     py = 95 -- height of one card
 }
@@ -205,6 +392,13 @@ SMODS.Atlas{
 }
 
 SMODS.Atlas{
+    key = 'kubebow', --atlas key
+    path = 'kubebow.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
+    px = 71, --width of one card
+    py = 95 -- height of one card
+}
+
+SMODS.Atlas{
     key = 'buyson', --atlas key
     path = 'buywaterson.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
     px = 71, --width of one card
@@ -214,6 +408,13 @@ SMODS.Atlas{
 SMODS.Atlas{
     key = 'laug', --atlas key
     path = 'laug2.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
+    px = 71, --width of one card
+    py = 95 -- height of one card
+}
+
+SMODS.Atlas{
+    key = 'miku', --atlas key
+    path = 'miku.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
     px = 71, --width of one card
     py = 95 -- height of one card
 }
@@ -230,6 +431,13 @@ SMODS.Atlas{
     path = 'drycard.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
     px = 72, --width of one card
     py = 96 -- height of one card
+}
+
+SMODS.Atlas{
+    key = 'NERD', --atlas key
+    path = 'NERD.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
+    px = 71, --width of one card
+    py = 95 -- height of one card
 }
 
 SMODS.Atlas{
@@ -262,6 +470,46 @@ SMODS.Atlas{
 }
 
 SMODS.Consumable{
+    key = 'perspectives', --key
+    set = 'Spectral', --the set of the card: corresponds to a consumable type
+    atlas = 'perspective', --atlas
+    pos = {x = 0, y = 0}, --position in atlas
+    loc_txt = {
+        name = 'Perspective', --name of card
+        text = { --text of card
+            '{C:attention}+#1#{} card selection limit'
+        }
+    },
+    config = {
+        extra = {
+            cards = 3 --configurable value
+			
+        }
+    },
+	
+   loc_vars = function(self,info_queue, card) --displays configurable value: the #1# in the description is replaced with the configurable value
+         return {vars = {card.ability.extra.cards}}
+	end,
+	 can_use = function(self)
+	 return true
+	 end,
+    use = function(self,card,area,copier)
+  G.E_MANAGER:add_event(Event({
+			func = function()
+					G.hand.config.highlighted_limit = G.hand.config.highlighted_limit + card.ability.extra.cards
+							return true
+				end
+		}))
+	G.FUNCS.can_play = function(e)
+    if #G.hand.highlighted > 5 then 
+        e.config.colour = G.C.BLUE
+        e.config.button = 'play_cards_from_highlighted'
+    end
+  end
+  end
+ }
+ 
+SMODS.Consumable{
     key = 'tap', --key
     set = 'Tarot', --the set of the card: corresponds to a consumable type
     atlas = 'tap', --atlas
@@ -281,7 +529,7 @@ SMODS.Consumable{
     },
 	
    loc_vars = function(self,info_queue, card)
-         info_queue[#info_queue+1] = G.P_CENTERS.m_440_wet --displays configurable value: the #1# in the description is replaced with the configurable value
+         info_queue[#info_queue+1] = G.P_CENTERS.m_z440_wet --displays configurable value: the #1# in the description is replaced with the configurable value
          return {vars = {card.ability.extra.cards}}
 	end,
     can_use = function(self,card)
@@ -294,7 +542,7 @@ SMODS.Consumable{
     end,
     use = function(self,card,area,copier)
     for i=1, #G.hand.highlighted do
-      G.hand.highlighted[i]:set_ability(G.P_CENTERS["m_440_wet"])
+      G.hand.highlighted[i]:set_ability(G.P_CENTERS["m_z440_wet"])
       G.hand.highlighted[i]:flip()
       G.E_MANAGER:add_event(Event({
         trigger = "after",
@@ -328,7 +576,7 @@ SMODS.Consumable{
     },
 	
    loc_vars = function(self,info_queue, card)
-         info_queue[#info_queue+1] = G.P_CENTERS.m_440_dry --displays configurable value: the #1# in the description is replaced with the configurable value
+         info_queue[#info_queue+1] = G.P_CENTERS.m_z440_dry --displays configurable value: the #1# in the description is replaced with the configurable value
          return {vars = {card.ability.extra.cards}}
 	end,
     can_use = function(self,card)
@@ -341,7 +589,7 @@ SMODS.Consumable{
     end,
     use = function(self,card,area,copier)
     for i=1, #G.hand.highlighted do
-      G.hand.highlighted[i]:set_ability(G.P_CENTERS["m_440_dry"])
+      G.hand.highlighted[i]:set_ability(G.P_CENTERS["m_z440_dry"])
       G.hand.highlighted[i]:flip()
       G.E_MANAGER:add_event(Event({
         trigger = "after",
@@ -477,14 +725,15 @@ SMODS.Joker{
         if not G.SETTINGS.paused and G.jokers then
             card.ability.extra.Wet_cards = 0
             for k, v in pairs(G.playing_cards) do
-                if v.config.center == G.P_CENTERS.m_440_wet then card.ability.extra.Wet_cards = card.ability.extra.Wet_cards + 1
+                if v.config.center == G.P_CENTERS.m_z440_wet then card.ability.extra.Wet_cards = card.ability.extra.Wet_cards + 1
 				 card.ability.extra.Xmult = card.ability.extra.Xmult_gain * card.ability.extra.Wet_cards end
 				end
 			end
 		end,
     loc_vars = function(self,info_queue,center) --adds "Joker"'s description next to this card's description
-        return {vars = {center.ability.extra.Xmult, center.ability.extra.Xmult_gain}} --#1# is replaced with card.ability.extra.Xmult
-    end,
+        info_queue[#info_queue+1] = G.P_CENTERS.m_z440_wet
+		return {vars = {center.ability.extra.Xmult, center.ability.extra.Xmult_gain}} --#1# is replaced with card.ability.extra.Xmult
+	end,
     calculate = function(self,card,context)
         if context.joker_main then
             return {
@@ -558,7 +807,7 @@ SMODS.Joker{
     cost = 5, --cost
     pos = {x = 0, y = 0}, --position in atlas, starts at 0, scales by the atlas' card size (px and py): {x = 1, y = 0} would mean the sprite is 71 pixels to the right
        loc_vars = function(self,info_queue,center)
-        info_queue[#info_queue+1] = G.P_CENTERS.m_440_wet
+        info_queue[#info_queue+1] = G.P_CENTERS.m_z440_wet
        end,		
 	   calculate = function(self,card,context)                   
 		if G.jokers then
@@ -567,7 +816,7 @@ SMODS.Joker{
 							for k, v in ipairs(context.scoring_hand) do
                             if v:is_face() then 
                                 faces[#faces+1] = v
-                                v:set_ability(G.P_CENTERS.m_440_wet, nil, true)
+                                v:set_ability(G.P_CENTERS.m_z440_wet, nil, true)
                                 G.E_MANAGER:add_event(Event({
                                     func = function()
                                         v:juice_up(1, 0.5)
@@ -604,7 +853,7 @@ SMODS.Joker{
 	  },
     pos = {x = 0, y = 0}, --position in atlas, starts at 0, scales by the atlas' card size (px and py): {x = 1, y = 0} would mean the sprite is 71 pixels to the right
        loc_vars = function(self,info_queue,center)
-        info_queue[#info_queue+1] = G.P_CENTERS.m_440_dry
+        info_queue[#info_queue+1] = G.P_CENTERS.m_z440_dry
 		return {vars = {center.ability.extra.drymult_gain, center.ability.extra.blindchipmult}}
        end,	
        
@@ -625,7 +874,7 @@ SMODS.Joker{
 		end
 		if context.joker_main then
 							for k, v in ipairs(context.scoring_hand) do
-                             if v.config.center == G.P_CENTERS.m_440_dry then card.ability.extra.Dry_cards = card.ability.extra.Dry_cards + 1
+                             if v.config.center == G.P_CENTERS.m_z440_dry then card.ability.extra.Dry_cards = card.ability.extra.Dry_cards + 1
 				             card.ability.extra.drymult = card.ability.extra.drymult_gain * card.ability.extra.Dry_cards end
                         end
                         return {
@@ -638,6 +887,7 @@ end
 end
 }
 
+if debug.mode then
 SMODS.Joker{
     key = '6/4', --joker key
     loc_txt = { -- local text
@@ -669,11 +919,83 @@ SMODS.Joker{
                         message = 'X' .. card.ability.extra.Xmult,
                         Xmult_mod = card.ability.extra.Xmult
 						}
+						else return {}
 												end
                             end	
 						end
 end
-	end,
+	end
+
+}
+end
+
+SMODS.Joker { -- Samurai
+  key = 'kubebow',
+  rarity = 1,
+  cost = 6,
+  atlas = "kubebow",
+  pos = { x = 0 , y = 0},
+  config = {  extra = { mult = 7 } },
+  loc_txt = {
+  name = 'Kubebow',
+  text = {
+  'Scored {C:attention}sevens{} give',
+  '{C:mult}+#1#{} mult.'
+  },
+  },
+  loc_vars = function(self, info_queue, card)
+    return { vars = {
+        card.ability.extra.mult
+    } }
+  end,
+  calculate = function (self, card, context)
+     if context.individual and context.cardarea == G.play and context.other_card:get_id() == 7 then
+      return {
+        mult = card.ability.extra.mult
+      }
+    end
+  end
+}
+
+
+SMODS.Joker{
+    key = 'miku?', --joker key
+    loc_txt = { -- local text
+        name = 'Hatsune Miku?',
+        text = {
+          'Gains {C:chips}+#1#{} chips every second',
+		  'since {C:attention}game launch{}.',
+		  '{s:0.7)Currently {C:chips}+#2#{} chips.' 
+        },
+    },
+    atlas = 'miku', --atlas' key
+    rarity = 4, --rarity: 1 = Common, 2 = Uncommon, 3 = Rare, 4 = Legendary
+    --soul_pos = { x = 0, y = 0 },
+    cost = 4, --cost
+	config = {
+	      extra = {
+		    chip_mult = 1,
+			chips = 0
+			}
+		},
+    pos = {x = 0, y = 0}, --position in atlas, starts at 0, scales by the atlas' card size (px and py): {x = 1, y = 0} would mean the sprite is 71 pixels to the right
+       loc_vars = function(self,info_queue,center)
+        return {vars = {center.ability.extra.chip_mult, center.ability.extra.chips}}
+       end,		
+	  update = function(self, card, dt)
+        if not G.SETTINGS.paused then
+		card.ability.extra.chips = math.floor(G.TIMERS.REAL) * card.ability.extra.chip_mult
+		end
+		end,
+		calculate = function(self,card,context)
+		 if G.jokers and context.joker_main then
+                             return {
+                        message = '+' .. card.ability.extra.chips,
+                        chip_mod = card.ability.extra.chips,
+						colour = G.C.CHIPS
+						}
+                            end	
+	end
 
 }
 
@@ -701,7 +1023,7 @@ SMODS.Joker{
 	    calculate = function(self,card,context)        
 	  if G.jokers then
 	  if context.joker_main then
-		if context.poker_hands['Straight'] then
+		if next(context.poker_hands['Straight']) then
 		if not context.repetition then
 		  return {
                         message = '+' .. card.ability.extra.mult,
@@ -726,6 +1048,40 @@ SMODS.Joker{
     rarity = 4, --rarity: 1 = Common, 2 = Uncommon, 3 = Rare, 4 = Legendary
     --soul_pos = { x = 0, y = 0 },
 }
+
+SMODS.Joker {
+  key = 'nerd',
+  rarity = 1,
+  cost = 6,
+  atlas = 'NERD',
+  pos = { x = 0 , y = 0},
+  config = {  extra = { chips = 0, chip_gain = 13 } },
+  loc_txt = {
+  name = 'Nerd',
+  text = {
+  'Gains {C:chips}+#2#{} chips per {C:attention}king{} scored.',
+  'Currently {C:chips}+#1#{} chips.'
+  },
+  },
+  loc_vars = function(self, info_queue, card)
+    return { vars = {
+        card.ability.extra.chips,
+		card.ability.extra.chip_gain
+    } }
+  end,
+  calculate = function (self, card, context)
+     if context.individual and context.cardarea == G.play and context.other_card:get_id() == 13 then
+	card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chip_gain
+	end
+	if context.joker_main and card.ability.extra.chips > 0 then
+      return {
+        chip_mod = card.ability.extra.chips,
+        message = '+' .. card.ability.extra.chips
+      }
+    end
+end
+}
+
 ----------------------------------------------
 ------------MOD CODE END----------------------
     
